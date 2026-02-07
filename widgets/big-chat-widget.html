@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Big AI Chat Widget</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    .big-chat-widget {
+      --widget-primary: #10a37f;
+      --widget-bg: #1a1a1a;
+      --widget-text: #ffffff;
+      --widget-muted: #737373;
+      --widget-border: #2a2a2a;
+      --widget-user-bg: #10a37f;
+      --widget-ai-bg: #2d2d2d;
+    }
+
+    .big-chat-widget-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 999999;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .big-chat-toggle {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #10a37f, #0d8a6a);
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .big-chat-toggle:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 40px rgba(16, 163, 127, 0.4);
+    }
+
+    .big-chat-toggle svg {
+      width: 32px;
+      height: 32px;
+      fill: white;
+    }
+
+    .big-chat-window {
+      position: absolute;
+      bottom: 90px;
+      right: 0;
+      width: 450px;
+      height: 600px;
+      background: var(--widget-bg);
+      border-radius: 20px;
+      box-shadow: 0 12px 60px rgba(0, 0, 0, 0.5);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--widget-border);
+    }
+
+    .big-chat-window.open {
+      display: flex;
+    }
+
+    .big-chat-header {
+      padding: 20px 24px;
+      border-bottom: 2px solid var(--widget-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+    }
+
+    .big-chat-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .big-chat-avatar {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #10a37f, #0d8a6a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px rgba(16, 163, 127, 0.3);
+    }
+
+    .big-chat-avatar svg {
+      width: 30px;
+      height: 30px;
+      fill: white;
+    }
+
+    .big-chat-title-section {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .big-chat-title {
+      color: var(--widget-text);
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .big-chat-status {
+      color: #22c55e;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .big-chat-status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #22c55e;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .big-chat-close {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .big-chat-close:hover {
+      background: var(--widget-border);
+    }
+
+    .big-chat-close svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--widget-muted);
+    }
+
+    /* Big AI Response Display Area */
+    .big-chat-ai-display {
+      background: linear-gradient(180deg, #252525 0%, #1a1a1a 100%);
+      padding: 24px;
+      border-bottom: 2px solid var(--widget-border);
+      min-height: 180px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .big-chat-ai-display-label {
+      color: var(--widget-muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .big-chat-ai-display-label svg {
+      width: 14px;
+      height: 14px;
+      fill: var(--widget-primary);
+    }
+
+    .big-chat-ai-content {
+      color: var(--widget-text);
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 1.4;
+      letter-spacing: -0.3px;
+    }
+
+    .big-chat-ai-content.empty {
+      color: var(--widget-muted);
+      font-size: 18px;
+      font-weight: 400;
+      font-style: italic;
+    }
+
+    /* Messages List */
+    .big-chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      background: var(--widget-bg);
+    }
+
+    .big-chat-message {
+      display: flex;
+      flex-direction: column;
+      max-width: 88%;
+      animation: slideIn 0.4s ease;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .big-chat-message.user {
+      align-self: flex-end;
+    }
+
+    .big-chat-message.ai {
+      align-self: flex-start;
+    }
+
+    .big-chat-message-content {
+      padding: 16px 20px;
+      border-radius: 20px;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .big-chat-message.user .big-chat-message-content {
+      background: linear-gradient(135deg, #10a37f, #0d8a6a);
+      color: white;
+      border-bottom-right-radius: 6px;
+      font-weight: 500;
+    }
+
+    .big-chat-message.ai .big-chat-message-content {
+      background: var(--widget-ai-bg);
+      color: var(--widget-text);
+      border: 1px solid var(--widget-border);
+      border-bottom-left-radius: 6px;
+    }
+
+    .big-chat-message-meta {
+      font-size: 12px;
+      color: var(--widget-muted);
+      margin-top: 8px;
+      padding: 0 6px;
+    }
+
+    .big-chat-message.user .big-chat-message-meta {
+      text-align: right;
+    }
+
+    /* Typing Indicator */
+    .big-chat-typing {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 20px;
+      background: var(--widget-ai-bg);
+      border: 1px solid var(--widget-border);
+      border-radius: 20px;
+      border-bottom-left-radius: 6px;
+      max-width: 88%;
+      align-self: flex-start;
+    }
+
+    .big-chat-typing-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--widget-muted);
+      animation: typing 1.4s infinite;
+    }
+
+    .big-chat-typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .big-chat-typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% {
+        transform: translateY(0);
+      }
+      30% {
+        transform: translateY(-6px);
+      }
+    }
+
+    /* Input Area */
+    .big-chat-input-container {
+      padding: 20px 24px;
+      border-top: 2px solid var(--widget-border);
+      background: linear-gradient(135deg, #0d0d0d, #1a1a1a);
+    }
+
+    .big-chat-input-wrapper {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      background: var(--widget-bg);
+      border: 2px solid var(--widget-border);
+      border-radius: 16px;
+      padding: 6px 6px 6px 20px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .big-chat-input-wrapper:focus-within {
+      border-color: var(--widget-primary);
+      box-shadow: 0 0 0 3px rgba(16, 163, 127, 0.2);
+    }
+
+    .big-chat-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--widget-text);
+      font-size: 16px;
+      resize: none;
+      max-height: 100px;
+      min-height: 50px;
+      line-height: 1.5;
+      padding: 14px 0;
+      font-family: inherit;
+    }
+
+    .big-chat-input::placeholder {
+      color: var(--widget-muted);
+    }
+
+    .big-chat-send {
+      width: 50px;
+      height: 50px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #10a37f, #0d8a6a);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.2s, transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .big-chat-send:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+
+    .big-chat-send:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .big-chat-send svg {
+      width: 22px;
+      height: 22px;
+      fill: white;
+    }
+
+    /* Welcome Screen */
+    .big-chat-welcome {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 50px 30px;
+      text-align: center;
+    }
+
+    .big-chat-welcome-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #10a37f, #0d8a6a);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 30px rgba(16, 163, 127, 0.3);
+    }
+
+    .big-chat-welcome-icon svg {
+      width: 40px;
+      height: 40px;
+      fill: white;
+    }
+
+    .big-chat-welcome h2 {
+      color: var(--widget-text);
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .big-chat-welcome p {
+      color: var(--widget-muted);
+      font-size: 16px;
+      line-height: 1.6;
+      max-width: 320px;
+    }
+
+    /* Scrollbar styling */
+    .big-chat-messages::-webkit-scrollbar,
+    .big-chat-ai-display::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .big-chat-messages::-webkit-scrollbar-track,
+    .big-chat-ai-display::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .big-chat-messages::-webkit-scrollbar-thumb,
+    .big-chat-ai-display::-webkit-scrollbar-thumb {
+      background: var(--widget-border);
+      border-radius: 4px;
+    }
+
+    .big-chat-messages::-webkit-scrollbar-thumb:hover,
+    .big-chat-ai-display::-webkit-scrollbar-thumb:hover {
+      background: #3a3a3a;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      .big-chat-window {
+        width: calc(100vw - 40px);
+        right: -10px;
+        height: calc(100vh - 120px);
+      }
+
+      .big-chat-ai-content {
+        font-size: 20px;
+      }
+
+      .big-chat-toggle {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="big-chat-widget-container">
+    <div class="big-chat-window" id="bigChatWindow">
+      <div class="big-chat-header">
+        <div class="big-chat-header-left">
+          <div class="big-chat-avatar">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+          </div>
+          <div class="big-chat-title-section">
+            <div class="big-chat-title">AI Assistant</div>
+            <div class="big-chat-status">
+              <span class="big-chat-status-dot"></span>
+              Online - Ready to help
+            </div>
+          </div>
+        </div>
+        <button class="big-chat-close" id="bigChatClose">
+          <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+      
+      <!-- Big AI Response Display at Top -->
+      <div class="big-chat-ai-display" id="bigChatAIDisplay">
+        <div class="big-chat-ai-display-label">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+          AI Response
+        </div>
+        <div class="big-chat-ai-content empty" id="bigChatAIContent">
+          AI response will appear here in large text...
+        </div>
+      </div>
+      
+      <!-- Message History -->
+      <div class="big-chat-messages" id="bigChatMessages">
+        <div class="big-chat-welcome" id="bigChatWelcome">
+          <div class="big-chat-welcome-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+          </div>
+          <h2>How can I help you?</h2>
+          <p>Type a message below and the AI will respond with clear, readable answers.</p>
+        </div>
+      </div>
+      
+      <!-- Typing Indicator -->
+      <div class="big-chat-typing" id="bigChatTyping" style="display: none;">
+        <div class="big-chat-typing-dot"></div>
+        <div class="big-chat-typing-dot"></div>
+        <div class="big-chat-typing-dot"></div>
+      </div>
+      
+      <!-- Input Area -->
+      <div class="big-chat-input-container">
+        <div class="big-chat-input-wrapper">
+          <textarea 
+            class="big-chat-input" 
+            id="bigChatInput" 
+            placeholder="Type your message here..."
+            rows="1"
+          ></textarea>
+          <button class="big-chat-send" id="bigChatSend" disabled>
+            <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <button class="big-chat-toggle" id="bigChatToggle" aria-label="Open big chat">
+      <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H6l-2 2V4h16v12z"/></svg>
+    </button>
+  </div>
+
+  <script>
+    (function() {
+      const widgetId = 'bigChatWidget';
+      let isOpen = false;
+      let messages = [];
+      let isTyping = false;
+      let currentAIResponse = '';
+
+      const windowEl = document.getElementById('bigChatWindow');
+      const toggleEl = document.getElementById('bigChatToggle');
+      const closeEl = document.getElementById('bigChatClose');
+      const messagesEl = document.getElementById('bigChatMessages');
+      const welcomeEl = document.getElementById('bigChatWelcome');
+      const typingEl = document.getElementById('bigChatTyping');
+      const inputEl = document.getElementById('bigChatInput');
+      const sendEl = document.getElementById('bigChatSend');
+      const aiDisplayEl = document.getElementById('bigChatAIDisplay');
+      const aiContentEl = document.getElementById('bigChatAIContent');
+
+      function toggleChat() {
+        isOpen = !isOpen;
+        windowEl.classList.toggle('open', isOpen);
+        
+        if (isOpen && messages.length === 0) {
+          welcomeEl.style.display = 'flex';
+        } else {
+          welcomeEl.style.display = 'none';
+        }
+      }
+
+      function closeChat() {
+        isOpen = false;
+        windowEl.classList.remove('open');
+      }
+
+      function getCurrentTime() {
+        return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      // Update the big AI display at the top
+      function updateAIDisplay(content) {
+        if (content && content.trim()) {
+          aiContentEl.textContent = content;
+          aiContentEl.classList.remove('empty');
+        } else {
+          aiContentEl.textContent = 'AI response will appear here in large text...';
+          aiContentEl.classList.add('empty');
+        }
+      }
+
+      function addMessage(content, role) {
+        const message = {
+          id: Date.now(),
+          content,
+          role,
+          timestamp: getCurrentTime()
+        };
+        messages.push(message);
+        
+        if (messages.length === 1) {
+          welcomeEl.style.display = 'none';
+        }
+
+        const messageEl = document.createElement('div');
+        messageEl.className = `big-chat-message ${role}`;
+        messageEl.innerHTML = `
+          <div class="big-chat-message-content">${escapeHtml(content)}</div>
+          <div class="big-chat-message-meta">${role === 'user' ? 'You' : 'AI'} · ${message.timestamp}</div>
+        `;
+
+        // Insert after welcome, before typing indicator
+        const typingIndicator = document.getElementById('bigChatTyping');
+        messagesEl.insertBefore(messageEl, typingIndicator);
+        
+        // Update big AI display if it's an AI message
+        if (role === 'ai') {
+          updateAIDisplay(content);
+        }
+
+        // Scroll to bottom
+        messagesEl.scrollTop = messagesEl.scrollHeight;
+
+        return messageEl;
+      }
+
+      function setTyping(typing) {
+        isTyping = typing;
+        typingEl.style.display = typing ? 'flex' : 'none';
+        sendEl.disabled = typing || !inputEl.value.trim();
+        
+        if (typing) {
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
+      }
+
+      function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      }
+
+      async function handleSend() {
+        const content = inputEl.value.trim();
+        if (!content || isTyping) return;
+
+        // Clear AI display when user sends message
+        updateAIDisplay('');
+
+        addMessage(content, 'user');
+        inputEl.value = '';
+        sendEl.disabled = true;
+
+        setTyping(true);
+
+        // Simulate AI response (replace with actual API call)
+        setTimeout(() => {
+          const aiResponse = `Here's what I understand: "${content}"\n\nI'm your AI assistant! I can help you with various tasks. Just let me know what you need.`;
+          addMessage(aiResponse, 'ai');
+          setTyping(false);
+        }, 1500);
+      }
+
+      function handleInput() {
+        sendEl.disabled = !inputEl.value.trim();
+        
+        // Auto-resize textarea
+        inputEl.style.height = 'auto';
+        inputEl.style.height = Math.min(inputEl.scrollHeight, 100) + 'px';
+      }
+
+      function handleKeyDown(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          handleSend();
+        }
+      }
+
+      // Event listeners
+      toggleEl.addEventListener('click', toggleChat);
+      closeEl.addEventListener('click', closeChat);
+      sendEl.addEventListener('click', handleSend);
+      inputEl.addEventListener('input', handleInput);
+      inputEl.addEventListener('keydown', handleKeyDown);
+
+      // Auto-resize textarea on load
+      inputEl.style.height = 'auto';
+    })();
+  </script>
+</body>
+</html>

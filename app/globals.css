@@ -1,0 +1,398 @@
+@import "tailwindcss";
+
+:root {
+  /* Cybersecurity Enterprise Dark Theme */
+  --background: #0a0f1a;
+  --foreground: #e2e8f0;
+  --card-bg: #111827;
+  --card-border: #1e293b;
+  --input-bg: #1a2332;
+  --input-border: #334155;
+  
+  /* Primary Security Colors */
+  --primary: #06b6d4;
+  --primary-hover: #0891b2;
+  --primary-glow: rgba(6, 182, 212, 0.3);
+  
+  /* Threat Level Colors */
+  --threat-critical: #dc2626;
+  --threat-high: #ea580c;
+  --threat-medium: #ca8a04;
+  --threat-low: #22c55e;
+  
+  /* Security Accents */
+  --safe: #22c55e;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --info: #3b82f6;
+  
+  /* MITRE ATT&CK Colors */
+  --mitre-initial: #f97316;
+  --mitre-execution: #8b5cf6;
+  --mitre-persistence: #06b6d4;
+  --mitre-privilege: #ec4899;
+  --mitre-defense: #22c55e;
+  --mitre-discovery: #3b82f6;
+  --mitre-lateral: #f59e0b;
+  --mitre-collection: #6366f1;
+  
+  /* UI Elements */
+  --secondary: #475569;
+  --muted: #64748b;
+  --accent: #1e3a5f;
+  --grid-color: rgba(6, 182, 212, 0.05);
+}
+
+.light {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card-bg: #ffffff;
+  --card-border: #e2e8f0;
+  --input-bg: #f1f5f9;
+  --input-border: #cbd5e1;
+  
+  --primary: #0891b2;
+  --primary-hover: #0e7490;
+  --primary-glow: rgba(8, 145, 178, 0.2);
+  
+  --threat-critical: #b91c1c;
+  --threat-high: #c2410c;
+  --threat-medium: #a16207;
+  --threat-low: #15803d;
+  
+  --safe: #16a34a;
+  --warning: #d97706;
+  --danger: #dc2626;
+  --info: #2563eb;
+  
+  --mitre-initial: #c2410c;
+  --mitre-execution: #7c3aed;
+  --mitre-persistence: #0891b2;
+  --mitre-privilege: #db2777;
+  --mitre-defense: #16a34a;
+  --mitre-discovery: #1d4ed8;
+  --mitre-lateral: #d97706;
+  --mitre-collection: #4f46e5;
+  
+  --secondary: #64748b;
+  --muted: #94a3b8;
+  --accent: #e0f2fe;
+  --grid-color: rgba(8, 145, 178, 0.08);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-safe: var(--safe);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  min-height: 100vh;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Cybersecurity Grid Background */
+.cyber-grid {
+  background-image: 
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Glass Effect */
+.glass {
+  background: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(51, 65, 85, 0.5);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+/* Neon Glow Effects */
+.neon-cyan {
+  box-shadow: 0 0 20px var(--primary-glow), 0 0 40px var(--primary-glow);
+}
+
+.neon-safe {
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.2);
+}
+
+.neon-danger {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 0 40px rgba(239, 68, 68, 0.2);
+}
+
+/* Threat Level Indicators */
+.threat-critical {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.2), rgba(220, 38, 38, 0.05));
+  border-color: var(--threat-critical);
+  color: var(--threat-critical);
+}
+
+.threat-high {
+  background: linear-gradient(135deg, rgba(234, 88, 12, 0.2), rgba(234, 88, 12, 0.05));
+  border-color: var(--threat-high);
+  color: var(--threat-high);
+}
+
+.threat-medium {
+  background: linear-gradient(135deg, rgba(202, 138, 4, 0.2), rgba(202, 138, 4, 0.05));
+  border-color: var(--threat-medium);
+  color: var(--threat-medium);
+}
+
+.threat-low {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.2), rgba(34, 197, 94, 0.05));
+  border-color: var(--threat-low);
+  color: var(--threat-low);
+}
+
+/* Risk Score Meter */
+.risk-meter {
+  background: linear-gradient(90deg, 
+    var(--threat-low) 0%, 
+    var(--threat-low) 25%, 
+    var(--threat-medium) 25%, 
+    var(--threat-medium) 50%, 
+    var(--threat-high) 50%, 
+    var(--threat-high) 75%, 
+    var(--threat-critical) 75%, 
+    var(--threat-critical) 100%
+  );
+}
+
+/* Clean Scrollbar */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: var(--input-border);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary);
+}
+
+/* Message Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message-enter {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* Pulse Animation for Critical Alerts */
+@keyframes pulseCritical {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.pulse-critical {
+  animation: pulseCritical 1.5s infinite;
+}
+
+/* Scan Line Animation */
+@keyframes scanLine {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100%); }
+}
+
+.scan-effect::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(180deg, transparent, rgba(6, 182, 212, 0.1), transparent);
+  animation: scanLine 3s linear infinite;
+}
+
+/* Button Hover Transition */
+.btn-transition {
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+}
+
+.btn-transition:active {
+  transform: scale(0.98);
+}
+
+.btn-cyber {
+  background: linear-gradient(135deg, var(--primary), #0891b2);
+  box-shadow: 0 0 15px var(--primary-glow);
+}
+
+.btn-cyber:hover {
+  box-shadow: 0 0 25px var(--primary-glow);
+}
+
+/* Code Block Styling */
+.code-block {
+  background: #0d1117;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.code-block pre {
+  padding: 16px;
+  font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* MITRE ATT&CK Badge */
+.mitre-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Secure Toggle Switch */
+.secure-toggle {
+  position: relative;
+  width: 48px;
+  height: 24px;
+  background: var(--input-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.secure-toggle.active {
+  background: var(--safe);
+}
+
+.secure-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.secure-toggle.active::after {
+  transform: translateX(24px);
+}
+
+/* Light Mode Specific Overrides */
+.light .bg-\[\#0a0f1a\] {
+  background-color: var(--background);
+}
+
+.light .bg-\[\#111827\] {
+  background-color: var(--card-bg);
+}
+
+.light .bg-\[\#1a2332\] {
+  background-color: var(--input-bg);
+}
+
+.light .border-\[\#1e293b\] {
+  border-color: var(--card-border);
+}
+
+.light .text-white {
+  color: var(--foreground);
+}
+
+.light .text-gray-300 {
+  color: #475569;
+}
+
+.light .text-gray-400 {
+  color: var(--muted);
+}
+
+.light .text-\[\#64748b\] {
+  color: var(--muted);
+}
+
+/* Tooltip */
+.tooltip {
+  position: relative;
+}
+
+.tooltip::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.tooltip:hover::after {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Blinking Status Indicator */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.status-blink {
+  animation: blink 1s infinite;
+}
+
+/* Typing Indicator */
+@keyframes typingDot {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-4px); }
+}
+
+.typing-dot {
+  animation: typingDot 1.2s infinite;
+}
+
+.typing-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
