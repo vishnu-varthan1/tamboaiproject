@@ -2,6 +2,8 @@
 
 An AI-powered Security Operations (SecOps) dashboard built with Next.js, Tambo AI, and Supabase. This application provides real-time threat detection, vulnerability analysis, incident response management, and compliance tracking for modern security teams.
 
+![Uploading image.png…]()
+
 ![EVS AI Chat App](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
 ![Tambo AI](https://img.shields.io/badge/Tambo%20AI-Powered-green?style=for-the-badge)
